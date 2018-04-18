@@ -6,20 +6,24 @@ using UnityEngine;
 public class Mask : MonoBehaviour {
 
     public Texture2D Image;
-    public Sprite MaskImage;
+    public Texture2D MaskImage;
     public int X = 0;
     public int Y = 0;
+    public int Nx = 2;
+    public int Ny = 2;
     // Use this for initialization
     void Start ()
     {
-        var texture = new Texture2D(25, 25, TextureFormat.ARGB32, false);
-        texture.SetPixels(Image.GetPixels(X * 25, Y * 25, 25, 25));
+        var w = Image.width / Nx;
+        var h = Image.height / Ny;
+        var texture = new Texture2D(w, h, TextureFormat.ARGB32, false);
+        texture.SetPixels(Image.GetPixels(X * w, Y * h, w, h));
         texture.Apply();
 
         var renderer = GetComponent<Renderer>();
         var newMaterial = new Material(renderer.sharedMaterial);
         newMaterial.SetTexture("_BackTex", texture);
-        newMaterial.SetTexture("_MaskTex", MaskImage.texture);
+        newMaterial.SetTexture("_MaskTex", MaskImage);
 
         renderer.sharedMaterial = newMaterial;
     }
