@@ -4,6 +4,12 @@ using UnityEngine;
 
 [ExecuteInEditMode]
 public class Mask : MonoBehaviour {
+    public enum Edge
+    {
+        Flat,
+        In,
+        Out
+    }
 
     public Texture2D Image;
     public Texture2D MaskImage;
@@ -11,13 +17,22 @@ public class Mask : MonoBehaviour {
     public int Y = 0;
     public int Nx = 2;
     public int Ny = 2;
+    public Edge[] Edges; // Top, Right, Bottom, Down
+
+    // 184 x 184
+    // 33 outwards
+    // 
+
     // Use this for initialization
     void Start ()
     {
-        var w = Image.width / Nx;
-        var h = Image.height / Ny;
-        var texture = new Texture2D(w, h, TextureFormat.ARGB32, false);
-        texture.SetPixels(Image.GetPixels(X * w, Y * h, w, h));
+        var width = Image.width / Nx;
+        var height = Image.height / Ny;
+
+        
+
+        var texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
+        texture.SetPixels(Image.GetPixels(X * width, Y * height, width, height));
         texture.Apply();
 
         var renderer = GetComponent<Renderer>();
