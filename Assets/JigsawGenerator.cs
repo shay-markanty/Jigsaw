@@ -14,20 +14,103 @@ public class JigsawGenerator : MonoBehaviour {
         {
             for (int y = 0; y < Ny; y++)
             {
+                Debug.Log(string.Format("Creating piece {0},{1}", x, y));
+
                 var piece = Instantiate(Prefab, transform);
-                var mask = piece.GetComponent<Mask>();
+                var mask = piece.GetComponent<MaskScript>();
                 mask.X = x;
                 mask.Y = y;
                 mask.Nx = Nx;
                 mask.Ny = Ny;
                 mask.MaskImage = Mask;
                 mask.Image = Image;
-                mask.transform.localPosition = new Vector3(x - Nx / 2 + (Nx % 2 == 0 ? 0.5f : 0.0f), y - Ny / 2 + (Ny % 2 == 0 ? 0.5f : 0.0f));
+                mask.Edges = CreateEdges(x, y);
+                // TODO: Calculate according to actual edges
+                var offsetX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (1 / 6f);
+                var offsetY = (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (1 / 6f);
+
+                mask.transform.localPosition = new Vector3(x - Nx / 2 + offsetX, y - Ny / 2 + offsetY);
             }
         }
 
         Camera.orthographicSize = Mathf.Max(Nx, Ny) / 2f;
 	}
+
+    MaskScript.Edge[] CreateEdges(int x, int y)
+    {
+        MaskScript.Edge top, right, bottom, left;
+
+        if (x == 0)
+        {
+            left = MaskScript.Edge.Flat;
+            right = MaskScript.Edge.Out;
+        }
+        else if (x == Nx - 1) 
+        {
+            left = MaskScript.Edge.In;
+            right = MaskScript.Edge.Flat;
+        }
+        else
+        {
+            left = MaskScript.Edge.In;
+            right = MaskScript.Edge.Out;
+        }
+
+        if (y == 0)
+        {
+            bottom = MaskScript.Edge.Flat;
+            top = MaskScript.Edge.Out;
+        }
+        else if (y == Ny - 1)
+        {
+            bottom = MaskScript.Edge.In;
+            top = MaskScript.Edge.Flat;
+        }
+        else
+        {
+            bottom = MaskScript.Edge.In;
+            top = MaskScript.Edge.Out;
+        }
+
+        return new[] { top, right, bottom, left };
+
+        //if (x == 0 && y == 0)
+        //{
+        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.Flat };
+        //}
+        //else if (x == 0 && y == Ny - 1)
+        //{
+        //    return new[] { MaskScript.Edge.Flat, MaskScript.Edge.Out, MaskScript.Edge.In, MaskScript.Edge.Flat };
+        //}
+        //else if (x == Nx - 1 && y == 0)
+        //{
+        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.Flat, MaskScript.Edge.In };
+        //}
+        //else if (x == Nx - 1 && y == Ny - 1)
+        //{
+        //    return new[] { MaskScript.Edge.Flat, MaskScript.Edge.Flat, MaskScript.Edge.In, MaskScript.Edge.In };
+        //}
+        //else if (x == 0)
+        //{
+        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.Flat };
+        //}
+        //else if (x == Nx - 1)
+        //{
+        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.In, MaskScript.Edge.In };
+        //}
+        //else if (y == 0)
+        //{
+        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.In };
+        //}
+        //else if (y == Ny - 1)
+        //{
+        //    return new[] { MaskScript.Edge.Flat, MaskScript.Edge.Out, MaskScript.Edge.In, MaskScript.Edge.In };
+        //}
+        //else
+        //{
+        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.In, MaskScript.Edge.In };
+        //}
+    }
 	
 	// Update is called once per frame
 	void Update () {
