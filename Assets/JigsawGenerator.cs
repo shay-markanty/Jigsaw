@@ -31,15 +31,18 @@ public class JigsawGenerator : MonoBehaviour {
         }
 
         Camera.orthographicSize = Mathf.Max(Nx, Ny) / 2f;
-        if (Image.height > Image.width)
+        // This will keep the aspect ratio of the object the same as the image's
+        // the original object's (before the transform) is Nx / Ny
+        // heuristically transform the smaller of the two edges (x or y) and keep the other at the same size
+        // TODO: might need an overall scale up or down to fill screen afterwards
+        if (Nx > Ny)
         {
-            transform.localScale = new Vector3(1f, (float)Image.height / Image.width);
+            transform.localScale = new Vector3(1f, (float)Image.height / Image.width * ((float)Nx / Ny));
         }
         else
         {
-            transform.localScale = new Vector3((float)Image.width / Image.height, 1f);
+            transform.localScale = new Vector3(1f / ((float)Image.height / Image.width * ((float)Nx / Ny)), 1f);
         }
-        //transform.localScale = new Vector3()
 	}
 
     Texture2D ChooseMask(int x, int y)
