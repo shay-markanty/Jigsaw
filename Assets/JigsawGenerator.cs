@@ -7,6 +7,8 @@ public class JigsawGenerator : MonoBehaviour {
     public Texture2D Image, Mask;
     public int Nx, Ny;
     public Camera Camera;
+    public Texture2D[] Masks;
+    // Top-left, Top, Top-Right, Right, Bottom-Right, Bottom, Bottom-Left, Left, Middle
 
 	// Use this for initialization
 	void Start () {
@@ -22,19 +24,61 @@ public class JigsawGenerator : MonoBehaviour {
                 mask.Y = y;
                 mask.Nx = Nx;
                 mask.Ny = Ny;
-                mask.MaskImage = Mask;
+                mask.MaskImage = ChooseMask(x, y); // Mask;
                 mask.Image = Image;
                 mask.Edges = CreateEdges(x, y);
-                // TODO: Calculate according to actual edges
-                var offsetX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (1 / 6f);
-                var offsetY = (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (1 / 6f);
-
-                mask.transform.localPosition = new Vector3(x - Nx / 2 + offsetX, y - Ny / 2 + offsetY);
             }
         }
 
         Camera.orthographicSize = Mathf.Max(Nx, Ny) / 2f;
+        if (Image.height > Image.width)
+        {
+            transform.localScale = new Vector3(1f, (float)Image.height / Image.width);
+        }
+        else
+        {
+            transform.localScale = new Vector3((float)Image.width / Image.height, 1f);
+        }
+        //transform.localScale = new Vector3()
 	}
+
+    Texture2D ChooseMask(int x, int y)
+    {
+        // 0 = Top-left, 1 = Top, 2 = Top-Right, 3 = Right, 4 = Bottom-Right, 5 = Bottom, 6 = Bottom-Left, 7 = Left, 8 = Middle
+        if (x == 0 && y == Ny - 1)
+        {
+            return Masks[0];
+        }
+        else if (x == Nx - 1 && y == Ny - 1)
+        {
+            return Masks[2];
+        }
+        else if (x == Nx - 1 && y == 0)
+        {
+            return Masks[4];
+        }
+        else if (x == 0 && y == 0)
+        {
+            return Masks[6];
+        }
+        else if (x == 0)
+        {
+            return Masks[7];
+        }
+        else if (x == Nx - 1)
+        {
+            return Masks[3];
+        }
+        else if (y == 0)
+        {
+            return Masks[5];
+        }
+        else if (y == Ny - 1)
+        {
+            return Masks[1];
+        }
+        else return Masks[8];
+    }
 
     MaskScript.Edge[] CreateEdges(int x, int y)
     {

@@ -227,6 +227,16 @@ MonoBehaviour:
   Nx: 6
   Ny: 6
   Camera: {fileID: 1332887920}
+  Masks:
+  - {fileID: 2800000, guid: e60a50f5a703e6b468a643273b548213, type: 3}
+  - {fileID: 2800000, guid: 3673128dbc4992747abc89bdda4af0fb, type: 3}
+  - {fileID: 2800000, guid: 9cdbcd36b8f3f3f41be78effcdea1c56, type: 3}
+  - {fileID: 2800000, guid: ec1b3697255d0714ab4b96a03ad09003, type: 3}
+  - {fileID: 2800000, guid: 92ec3fa4817bcda4aa99998c91d7a726, type: 3}
+  - {fileID: 2800000, guid: 412db2a1dc6da9446a9ba77dac49a108, type: 3}
+  - {fileID: 2800000, guid: ce055fb2a3cb51c4dba7916ec54d530e, type: 3}
+  - {fileID: 2800000, guid: 7840448b698f0d94286087dda9125988, type: 3}
+  - {fileID: 2800000, guid: 02afcdc59d4947644a493b6ff1c3f0ec, type: 3}
 --- !u!4 &1954871048
 Transform:
   m_ObjectHideFlags: 0
