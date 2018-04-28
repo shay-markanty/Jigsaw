@@ -3,7 +3,11 @@
 	Properties
 	{
 		_BackTex ("Texture", 2D) = "white" {}
-		_MaskTex ("Texture", 2D) = "white" {}
+		_CenterTex ("Texture", 2D) = "white" {}
+		_LeftTex("Texture", 2D) = "white" {}
+		_RightTex("Texture", 2D) = "white" {}
+		_TopTex("Texture", 2D) = "white" {}
+		_BottomTex("Texture", 2D) = "white" {}
 	}
 	SubShader
 	{
@@ -34,7 +38,11 @@
 			};
 
 			sampler2D _BackTex;
-			sampler2D _MaskTex;
+			sampler2D _CenterTex;
+			sampler2D _LeftTex;
+			sampler2D _RightTex;
+			sampler2D _TopTex;
+			sampler2D _BottomTex;
 			float4 _BackTex_ST;
 			
 			v2f vert (appdata v)
@@ -50,7 +58,14 @@
 			{
 				// sample the texture
 				fixed4 pixelColor = tex2D(_BackTex, i.uv);
-				fixed4 maskColor = tex2D(_MaskTex, i.uv);
+				fixed4 maskColor = max(tex2D(_LeftTex, i.uv), 
+									max(tex2D(_RightTex, i.uv), 
+									 max(tex2D(_TopTex, i.uv), 
+									  max(tex2D(_BottomTex, i.uv), 
+									   tex2D(_CenterTex, i.uv)))));
+
+				// fixed4 maskColor = tex2D(_LeftTex, i.uv) + tex2D(_RightTex, i.uv) + tex2D(_TopTex, i.uv) + tex2D(_BottomTex, i.uv) + tex2D(_CenterTex, i.uv);
+
 				if (maskColor.a == 0) discard;
 				fixed4 col = pixelColor * maskColor;
 				// apply fog

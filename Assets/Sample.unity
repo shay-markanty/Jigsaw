@@ -222,10 +222,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 4696773122329242, guid: 35c943a2673045748b2b13ef3ba717a4, type: 2}
-  Image: {fileID: 2800000, guid: 6395b183b9c300644b8d90715c2ff323, type: 3}
+  Image: {fileID: 2800000, guid: 9499b80e82549814cae24673d08c99e9, type: 3}
   Mask: {fileID: 2800000, guid: 02afcdc59d4947644a493b6ff1c3f0ec, type: 3}
-  Nx: 6
-  Ny: 6
+  Nx: 8
+  Ny: 8
   Camera: {fileID: 1332887920}
   Masks:
   - {fileID: 2800000, guid: e60a50f5a703e6b468a643273b548213, type: 3}
@@ -237,6 +237,20 @@ MonoBehaviour:
   - {fileID: 2800000, guid: ce055fb2a3cb51c4dba7916ec54d530e, type: 3}
   - {fileID: 2800000, guid: 7840448b698f0d94286087dda9125988, type: 3}
   - {fileID: 2800000, guid: 02afcdc59d4947644a493b6ff1c3f0ec, type: 3}
+  EdgeMasks:
+  - {fileID: 2800000, guid: cbc70378d5b52b74db0abd9feb630732, type: 3}
+  - {fileID: 2800000, guid: e8b1c2667639a1842b44ffa19403c688, type: 3}
+  - {fileID: 2800000, guid: 8d8c6658189ad834fb1c1012868dc7fd, type: 3}
+  - {fileID: 2800000, guid: 13d119452e3984d4bb39f9af70cb1982, type: 3}
+  - {fileID: 2800000, guid: 71abb0e01ec3eac4fbd01458cc6ca4a7, type: 3}
+  - {fileID: 2800000, guid: e5bbac2b9fa2d9144ac673d42f920e78, type: 3}
+  - {fileID: 2800000, guid: eb34636573b8b324cbfd2545d5cd2124, type: 3}
+  - {fileID: 2800000, guid: 24455f81d7a9eab42a12a7212cfaa5e0, type: 3}
+  - {fileID: 2800000, guid: 90a0cce6ccd41654c8fd6af025ce3e14, type: 3}
+  - {fileID: 2800000, guid: 975ce4af41d905f4aa8e2dc6ad6c09c8, type: 3}
+  - {fileID: 2800000, guid: d79ee1845505fdf4e8c895ec5a1f4c72, type: 3}
+  - {fileID: 2800000, guid: c1c852fc69ff1be45840a4e1561ba68d, type: 3}
+  - {fileID: 2800000, guid: 1cd97790987b5794187a93d474ec54dd, type: 3}
 --- !u!4 &1954871048
 Transform:
   m_ObjectHideFlags: 0
@@ -244,7 +258,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1954871046}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

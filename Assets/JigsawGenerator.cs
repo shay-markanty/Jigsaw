@@ -10,23 +10,54 @@ public class JigsawGenerator : MonoBehaviour {
     public Texture2D[] Masks;
     // Top-left, Top, Top-Right, Right, Bottom-Right, Bottom, Bottom-Left, Left, Middle
 
+    public Texture2D[] EdgeMasks;
+    // Top: Flat, In, Out
+    // Right: Flat, In, Out
+    // Bottom: Flat, In, Out
+    // Left: Flat, In, Out
+    // Center
+
 	// Use this for initialization
 	void Start () {
+        float pieceWidth = (float)Image.width / Nx;
+        float pieceHeight = (float)Image.height / Ny;
+        float maskWidth = pieceWidth * 8f / 6f;
+        float maskHeight = pieceHeight * 8f / 6f;
+        var offsetX = pieceWidth / 8f;
+        var offsetY = pieceHeight / 8f;
+        var totalWidth = Image.width + 2 * offsetX;
+        var totalHeight = Image.height + 2 * offsetY;
+
+        // copy image into a bigger texture with borders sized 1 / 8f of the jigsaw image size
+        var textureWithBorders = new Texture2D(Mathf.RoundToInt(totalWidth), Mathf.RoundToInt(totalHeight), TextureFormat.ARGB32, false);
+        textureWithBorders.SetPixels(Mathf.RoundToInt(offsetX), Mathf.RoundToInt(offsetY), Image.width, Image.height, Image.GetPixels());
+        
         for (int x = 0; x < Nx; x++)
         {
             for (int y = 0; y < Ny; y++)
             {
-                Debug.Log(string.Format("Creating piece {0},{1}", x, y));
+                Vector2 xy = new Vector2(x * pieceWidth + offsetX, y * pieceHeight + offsetY);
+                Vector2 xyt = new Vector2(xy.x - pieceWidth / 8f, xy.y - pieceHeight / 8f);
+                
+                var w = Mathf.Min(maskWidth, textureWithBorders.width - xyt.x);
+                var h = Mathf.Min(maskHeight, textureWithBorders.height - xyt.y);
+                var tex = new Texture2D(Mathf.RoundToInt(w), Mathf.RoundToInt(h));
 
+                tex.SetPixels(textureWithBorders.GetPixels(Mathf.RoundToInt(xyt.x), Mathf.RoundToInt(xyt.y), Mathf.RoundToInt(w), Mathf.RoundToInt(h)));
+                tex.Apply();
+
+                Debug.Log(string.Format("Creating piece {0},{1}", x, y));
+                // var tex = 
                 var piece = Instantiate(Prefab, transform);
                 var mask = piece.GetComponent<MaskScript>();
-                mask.X = x;
-                mask.Y = y;
-                mask.Nx = Nx;
-                mask.Ny = Ny;
-                mask.MaskImage = ChooseMask(x, y); // Mask;
-                mask.Image = Image;
+                mask.Image = tex;
                 mask.Edges = CreateEdges(x, y);
+                mask.EdgeMasks = EdgeMasks;
+                
+                var tX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (2 / 8f);
+                var tY= (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (2 / 8f);
+
+                mask.transform.localPosition = new Vector3(x- Nx / 2f + tX, y - Ny / 2f + tY);
             }
         }
 
