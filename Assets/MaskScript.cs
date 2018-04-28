@@ -40,7 +40,7 @@ public class MaskScript : MonoBehaviour {
 
         var renderer = GetComponent<Renderer>();
         var newMaterial = new Material(renderer.sharedMaterial);
-        newMaterial.SetTexture("_BackTex", Image); //texture);
+        newMaterial.SetTexture("_BackTex", Image);
         newMaterial.SetTexture("_CenterTex", EdgeMasks[12]);
         newMaterial.SetTexture("_TopTex", EdgeMasks[edges.Top == Edge.Flat ? 0 : edges.Top == Edge.In ? 1 : 2]);
         newMaterial.SetTexture("_RightTex", EdgeMasks[edges.Right == Edge.Flat ? 3 : edges.Right == Edge.In ? 4 : 5]);

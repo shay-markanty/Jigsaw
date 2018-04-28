@@ -33,7 +33,6 @@
 			struct v2f
 			{
 				float2 uv : TEXCOORD0;
-				UNITY_FOG_COORDS(1)
 				float4 vertex : SV_POSITION;
 			};
 
@@ -50,7 +49,6 @@
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _BackTex);
-				UNITY_TRANSFER_FOG(o,o.vertex);
 				return o;
 			}
 			
@@ -68,8 +66,6 @@
 
 				if (maskColor.a == 0) discard;
 				fixed4 col = pixelColor * maskColor;
-				// apply fog
-				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
 			}
 			ENDCG

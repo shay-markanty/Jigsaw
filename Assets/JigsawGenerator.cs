@@ -4,12 +4,8 @@ using UnityEngine;
 
 public class JigsawGenerator : MonoBehaviour {
     public Transform Prefab;
-    public Texture2D Image, Mask;
-    public int Nx, Ny;
     public Camera Camera;
-    public Texture2D[] Masks;
-    // Top-left, Top, Top-Right, Right, Bottom-Right, Bottom, Bottom-Left, Left, Middle
-
+    
     public Texture2D[] EdgeMasks;
     // Top: Flat, In, Out
     // Right: Flat, In, Out
@@ -18,7 +14,7 @@ public class JigsawGenerator : MonoBehaviour {
     // Center
 
 	// Use this for initialization
-	void Start () {
+	public void Generate(int Nx, int Ny, Texture2D Image) {
         float pieceWidth = (float)Image.width / Nx;
         float pieceHeight = (float)Image.height / Ny;
         float maskWidth = pieceWidth * 8f / 6f;
@@ -51,7 +47,7 @@ public class JigsawGenerator : MonoBehaviour {
                 var piece = Instantiate(Prefab, transform);
                 var mask = piece.GetComponent<MaskScript>();
                 mask.Image = tex;
-                mask.Edges = CreateEdges(x, y);
+                mask.Edges = CreateEdges(x, y, Nx, Ny);
                 mask.EdgeMasks = EdgeMasks;
                 
                 var tX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (2 / 8f);
@@ -75,46 +71,8 @@ public class JigsawGenerator : MonoBehaviour {
             transform.localScale = new Vector3(1f / ((float)Image.height / Image.width * ((float)Nx / Ny)), 1f);
         }
 	}
-
-    Texture2D ChooseMask(int x, int y)
-    {
-        // 0 = Top-left, 1 = Top, 2 = Top-Right, 3 = Right, 4 = Bottom-Right, 5 = Bottom, 6 = Bottom-Left, 7 = Left, 8 = Middle
-        if (x == 0 && y == Ny - 1)
-        {
-            return Masks[0];
-        }
-        else if (x == Nx - 1 && y == Ny - 1)
-        {
-            return Masks[2];
-        }
-        else if (x == Nx - 1 && y == 0)
-        {
-            return Masks[4];
-        }
-        else if (x == 0 && y == 0)
-        {
-            return Masks[6];
-        }
-        else if (x == 0)
-        {
-            return Masks[7];
-        }
-        else if (x == Nx - 1)
-        {
-            return Masks[3];
-        }
-        else if (y == 0)
-        {
-            return Masks[5];
-        }
-        else if (y == Ny - 1)
-        {
-            return Masks[1];
-        }
-        else return Masks[8];
-    }
-
-    MaskScript.Edge[] CreateEdges(int x, int y)
+    
+    MaskScript.Edge[] CreateEdges(int x, int y, int Nx, int Ny)
     {
         MaskScript.Edge top, right, bottom, left;
 
@@ -151,47 +109,5 @@ public class JigsawGenerator : MonoBehaviour {
         }
 
         return new[] { top, right, bottom, left };
-
-        //if (x == 0 && y == 0)
-        //{
-        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.Flat };
-        //}
-        //else if (x == 0 && y == Ny - 1)
-        //{
-        //    return new[] { MaskScript.Edge.Flat, MaskScript.Edge.Out, MaskScript.Edge.In, MaskScript.Edge.Flat };
-        //}
-        //else if (x == Nx - 1 && y == 0)
-        //{
-        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.Flat, MaskScript.Edge.In };
-        //}
-        //else if (x == Nx - 1 && y == Ny - 1)
-        //{
-        //    return new[] { MaskScript.Edge.Flat, MaskScript.Edge.Flat, MaskScript.Edge.In, MaskScript.Edge.In };
-        //}
-        //else if (x == 0)
-        //{
-        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.Flat };
-        //}
-        //else if (x == Nx - 1)
-        //{
-        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.In, MaskScript.Edge.In };
-        //}
-        //else if (y == 0)
-        //{
-        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.Flat, MaskScript.Edge.In };
-        //}
-        //else if (y == Ny - 1)
-        //{
-        //    return new[] { MaskScript.Edge.Flat, MaskScript.Edge.Out, MaskScript.Edge.In, MaskScript.Edge.In };
-        //}
-        //else
-        //{
-        //    return new[] { MaskScript.Edge.Out, MaskScript.Edge.Out, MaskScript.Edge.In, MaskScript.Edge.In };
-        //}
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
