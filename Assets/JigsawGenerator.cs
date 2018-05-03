@@ -105,13 +105,20 @@ public class JigsawGenerator : MonoBehaviour
                 var piece = Instantiate(Prefab, transform);
                 var mask = piece.GetComponent<MaskScript>();
                 mask.Image = tex;
-                mask.Edges = CreateEdges(puzzle, x, y, Nx, Ny);
+                mask.Edges = CreateEdges(puzzle, x, y);
                 mask.EdgeMasks = edgeMasks;
 
                 var tX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (2 / 8f);
                 var tY= (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (2 / 8f);
 
-                mask.transform.localPosition = new Vector3(x- Nx / 2f + tX, y - Ny / 2f + tY);
+                var pX = x - Nx / 2f + tX;
+                var pY = y - Ny / 2f + tY;
+
+                // Randomize location
+                pX = UnityEngine.Random.Range(-Nx / 2.5f, Nx / 2.5f);
+                pY = UnityEngine.Random.Range(-Ny / 2.5f, Ny / 2.5f);
+
+                mask.transform.localPosition = new Vector3(pX, pY);
 
                 var jigsawPiece = piece.GetComponent<JigsawPiece>();
                 jigsawPiece.X = x;
@@ -134,7 +141,7 @@ public class JigsawGenerator : MonoBehaviour
         }
 	}
     
-    MaskScript.Edge[] CreateEdges(JigsawPuzzle puzzle, int x, int y, int Nx, int Ny)
+    MaskScript.Edge[] CreateEdges(JigsawPuzzle puzzle, int x, int y)
     {
         MaskScript.Edge top, right, bottom, left;
 
