@@ -1,20 +1,76 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class JigsawGenerator : MonoBehaviour {
+public class JigsawGenerator : MonoBehaviour
+{
+    private Texture2D[] edgeMasks;
+
     public Transform Prefab;
     public Camera Camera;
-    
-    public Texture2D[] EdgeMasks;
+    public Texture2D Image;
+    public Texture2D[] EdgeTemplates; //BottomFlat,  BottomIn, BottomOut, Center
     // Top: Flat, In, Out
     // Right: Flat, In, Out
     // Bottom: Flat, In, Out
     // Left: Flat, In, Out
     // Center
 
-	// Use this for initialization
-	public void Generate(int Nx, int Ny, Texture2D Image) {
+    private void Start()
+    {
+        edgeMasks = new Texture2D[13];
+        edgeMasks[0] = FlipTextureVertically(EdgeTemplates[0]);
+        edgeMasks[1] = FlipTextureVertically(EdgeTemplates[1]);
+        edgeMasks[2] = FlipTextureVertically(EdgeTemplates[2]);
+        edgeMasks[3] = RotateTextureClockwise(edgeMasks[0]);
+        edgeMasks[4] = RotateTextureClockwise(edgeMasks[1]);
+        edgeMasks[5] = RotateTextureClockwise(edgeMasks[2]);
+        edgeMasks[6] = EdgeTemplates[0];
+        edgeMasks[7] = EdgeTemplates[1];
+        edgeMasks[8] = EdgeTemplates[2];
+        edgeMasks[9] = RotateTextureClockwise(edgeMasks[6]);
+        edgeMasks[10] = RotateTextureClockwise(edgeMasks[7]);
+        edgeMasks[11] = RotateTextureClockwise(edgeMasks[8]);
+        edgeMasks[12] = EdgeTemplates[3];
+
+        Generate(5, 5, Image);
+    }
+
+    private Texture2D FlipTextureVertically(Texture2D texture2D)
+    {
+        Texture2D result = new Texture2D(texture2D.width, texture2D.height);
+        result.wrapMode = TextureWrapMode.Clamp;
+        for (int i = 0; i < texture2D.width; ++i)
+        {
+            for (int j = 0; j < texture2D.height; ++j)
+            {
+                result.SetPixel(i, texture2D.height - j - 1, texture2D.GetPixel(i, j));
+            }
+        }
+
+        result.Apply();
+        return result;
+    }
+
+    private Texture2D RotateTextureClockwise(Texture2D texture2D)
+    {
+        Texture2D result = new Texture2D(texture2D.height, texture2D.width);
+        result.wrapMode = TextureWrapMode.Clamp;
+        for (int i = 0; i < texture2D.width; ++i)
+        {
+            for (int j = 0; j < texture2D.height; ++j)
+            {
+                result.SetPixel(j, i, texture2D.GetPixel(i, j));
+            }
+        }
+
+        result.Apply();
+        return result;
+    }
+
+    // Use this for initialization
+    public void Generate(int Nx, int Ny, Texture2D Image) {
         float pieceWidth = (float)Image.width / Nx;
         float pieceHeight = (float)Image.height / Ny;
         float maskWidth = pieceWidth * 8f / 6f;
@@ -48,7 +104,7 @@ public class JigsawGenerator : MonoBehaviour {
                 var mask = piece.GetComponent<MaskScript>();
                 mask.Image = tex;
                 mask.Edges = CreateEdges(x, y, Nx, Ny);
-                mask.EdgeMasks = EdgeMasks;
+                mask.EdgeMasks = edgeMasks;
                 
                 var tX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (2 / 8f);
                 var tY= (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (2 / 8f);
