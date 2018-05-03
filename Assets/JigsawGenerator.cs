@@ -6,18 +6,18 @@ using UnityEngine;
 
 public class JigsawGenerator : MonoBehaviour
 {
+    // Top: Flat, In, Out
+    // Right: Flat, In, Out
+    // Bottom: Flat, In, Out
+    // Left: Flat, In, Out
+    // Center
     private Texture2D[] edgeMasks;
 
     public Transform Prefab;
     public Camera Camera;
     public Texture2D Image;
     public Texture2D[] EdgeTemplates; //BottomFlat,  BottomIn, BottomOut, Center
-    // Top: Flat, In, Out
-    // Right: Flat, In, Out
-    // Bottom: Flat, In, Out
-    // Left: Flat, In, Out
-    // Center
-
+    
     private void Start()
     {
         edgeMasks = new Texture2D[13];
@@ -69,8 +69,7 @@ public class JigsawGenerator : MonoBehaviour
         result.Apply();
         return result;
     }
-
-    // Use this for initialization
+    
     public void Generate(int Nx, int Ny, Texture2D Image) {
         float pieceWidth = (float)Image.width / Nx;
         float pieceHeight = (float)Image.height / Ny;
@@ -101,8 +100,13 @@ public class JigsawGenerator : MonoBehaviour
                 tex.Apply();
 
                 Debug.Log(string.Format("Creating piece {0},{1}", x, y));
-                // var tex = 
-                var piece = Instantiate(Prefab, transform);
+
+                var container = new GameObject("Container");
+                container.transform.SetParent(transform);
+
+                var piece = Instantiate(Prefab, container.transform);
+                piece.name = string.Format("JigsawPiece ({0},{1})", x, y);
+
                 var mask = piece.GetComponent<MaskScript>();
                 mask.Image = tex;
                 mask.Edges = CreateEdges(puzzle, x, y);
@@ -118,7 +122,7 @@ public class JigsawGenerator : MonoBehaviour
                 pX = UnityEngine.Random.Range(-Nx / 2.5f, Nx / 2.5f);
                 pY = UnityEngine.Random.Range(-Ny / 2.5f, Ny / 2.5f);
 
-                mask.transform.localPosition = new Vector3(pX, pY);
+                container.transform.localPosition = new Vector3(pX, pY);
 
                 var jigsawPiece = piece.GetComponent<JigsawPiece>();
                 jigsawPiece.X = x;
@@ -181,39 +185,7 @@ public class JigsawGenerator : MonoBehaviour
         {
             bottom = piece.BottomD == Connection.In ? MaskScript.Edge.In : MaskScript.Edge.Out;
         }
-
-        //if (x == 0)
-        //{
-        //    left = MaskScript.Edge.Flat;
-        //    right = MaskScript.Edge.Out;
-        //}
-        //else if (x == Nx - 1) 
-        //{
-        //    left = MaskScript.Edge.In;
-        //    right = MaskScript.Edge.Flat;
-        //}
-        //else
-        //{
-        //    left = MaskScript.Edge.In;
-        //    right = MaskScript.Edge.Out;
-        //}
-
-        //if (y == 0)
-        //{
-        //    bottom = MaskScript.Edge.Flat;
-        //    top = MaskScript.Edge.Out;
-        //}
-        //else if (y == Ny - 1)
-        //{
-        //    bottom = MaskScript.Edge.In;
-        //    top = MaskScript.Edge.Flat;
-        //}
-        //else
-        //{
-        //    bottom = MaskScript.Edge.In;
-        //    top = MaskScript.Edge.Out;
-        //}
-
+        
         return new[] { top, right, bottom, left };
     }
 }
