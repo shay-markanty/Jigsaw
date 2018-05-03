@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -83,7 +84,8 @@ public class JigsawGenerator : MonoBehaviour
         // copy image into a bigger texture with borders sized 1 / 8f of the jigsaw image size
         var textureWithBorders = new Texture2D(Mathf.RoundToInt(totalWidth), Mathf.RoundToInt(totalHeight), TextureFormat.ARGB32, false);
         textureWithBorders.SetPixels(Mathf.RoundToInt(offsetX), Mathf.RoundToInt(offsetY), Image.width, Image.height, Image.GetPixels());
-        
+        JigsawPuzzle puzzle = JigsawPuzzle.Generate(Nx, Ny);
+
         for (int x = 0; x < Nx; x++)
         {
             for (int y = 0; y < Ny; y++)
@@ -103,13 +105,17 @@ public class JigsawGenerator : MonoBehaviour
                 var piece = Instantiate(Prefab, transform);
                 var mask = piece.GetComponent<MaskScript>();
                 mask.Image = tex;
-                mask.Edges = CreateEdges(x, y, Nx, Ny);
+                mask.Edges = CreateEdges(puzzle, x, y, Nx, Ny);
                 mask.EdgeMasks = edgeMasks;
-                
+
                 var tX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (2 / 8f);
                 var tY= (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (2 / 8f);
 
                 mask.transform.localPosition = new Vector3(x- Nx / 2f + tX, y - Ny / 2f + tY);
+
+                var jigsawPiece = piece.GetComponent<JigsawPiece>();
+                jigsawPiece.X = x;
+                jigsawPiece.Y = y;
             }
         }
 
@@ -120,49 +126,86 @@ public class JigsawGenerator : MonoBehaviour
         // TODO: might need an overall scale up or down to fill screen afterwards
         if (Nx > Ny)
         {
-            transform.localScale = new Vector3(1f, (float)Image.height / Image.width * ((float)Nx / Ny));
+            transform.localScale = new Vector3(1f, (float)Image.height / Image.width * ((float)Nx / Ny), 1f);
         }
         else
         {
-            transform.localScale = new Vector3(1f / ((float)Image.height / Image.width * ((float)Nx / Ny)), 1f);
+            transform.localScale = new Vector3(1f / ((float)Image.height / Image.width * ((float)Nx / Ny)), 1f, 1f);
         }
 	}
     
-    MaskScript.Edge[] CreateEdges(int x, int y, int Nx, int Ny)
+    MaskScript.Edge[] CreateEdges(JigsawPuzzle puzzle, int x, int y, int Nx, int Ny)
     {
         MaskScript.Edge top, right, bottom, left;
 
-        if (x == 0)
+        var piece = puzzle.Pieces[x, y];
+        if (piece.Left == null)
         {
             left = MaskScript.Edge.Flat;
-            right = MaskScript.Edge.Out;
         }
-        else if (x == Nx - 1) 
+        else
         {
-            left = MaskScript.Edge.In;
+            left = piece.LeftD == Connection.In ? MaskScript.Edge.In : MaskScript.Edge.Out;
+        }
+
+        if (piece.Right == null)
+        {
             right = MaskScript.Edge.Flat;
         }
         else
         {
-            left = MaskScript.Edge.In;
-            right = MaskScript.Edge.Out;
+            right = piece.RightD == Connection.In ? MaskScript.Edge.In : MaskScript.Edge.Out;
         }
 
-        if (y == 0)
+        if (piece.Top == null)
         {
-            bottom = MaskScript.Edge.Flat;
-            top = MaskScript.Edge.Out;
-        }
-        else if (y == Ny - 1)
-        {
-            bottom = MaskScript.Edge.In;
             top = MaskScript.Edge.Flat;
         }
         else
         {
-            bottom = MaskScript.Edge.In;
-            top = MaskScript.Edge.Out;
+            top = piece.TopD == Connection.In ? MaskScript.Edge.In : MaskScript.Edge.Out;
         }
+
+        if (piece.Bottom == null)
+        {
+            bottom = MaskScript.Edge.Flat;
+        }
+        else
+        {
+            bottom = piece.BottomD == Connection.In ? MaskScript.Edge.In : MaskScript.Edge.Out;
+        }
+
+        //if (x == 0)
+        //{
+        //    left = MaskScript.Edge.Flat;
+        //    right = MaskScript.Edge.Out;
+        //}
+        //else if (x == Nx - 1) 
+        //{
+        //    left = MaskScript.Edge.In;
+        //    right = MaskScript.Edge.Flat;
+        //}
+        //else
+        //{
+        //    left = MaskScript.Edge.In;
+        //    right = MaskScript.Edge.Out;
+        //}
+
+        //if (y == 0)
+        //{
+        //    bottom = MaskScript.Edge.Flat;
+        //    top = MaskScript.Edge.Out;
+        //}
+        //else if (y == Ny - 1)
+        //{
+        //    bottom = MaskScript.Edge.In;
+        //    top = MaskScript.Edge.Flat;
+        //}
+        //else
+        //{
+        //    bottom = MaskScript.Edge.In;
+        //    top = MaskScript.Edge.Out;
+        //}
 
         return new[] { top, right, bottom, left };
     }
