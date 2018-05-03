@@ -17,7 +17,8 @@ public class JigsawGenerator : MonoBehaviour
     public Camera Camera;
     public Texture2D Image;
     public Texture2D[] EdgeTemplates; //BottomFlat,  BottomIn, BottomOut, Center
-    
+    public Dictionary<MaskScript.TEdges, Texture2D> CachedMasks;
+
     private void Start()
     {
         edgeMasks = new Texture2D[13];
@@ -70,7 +71,10 @@ public class JigsawGenerator : MonoBehaviour
         return result;
     }
     
-    public void Generate(int Nx, int Ny, Texture2D Image) {
+    public void Generate(int Nx, int Ny, Texture2D Image)
+    {
+        CachedMasks = new Dictionary<MaskScript.TEdges, Texture2D>();
+
         float pieceWidth = (float)Image.width / Nx;
         float pieceHeight = (float)Image.height / Ny;
         float maskWidth = pieceWidth * 8f / 6f;
@@ -109,8 +113,32 @@ public class JigsawGenerator : MonoBehaviour
 
                 var mask = piece.GetComponent<MaskScript>();
                 mask.Image = tex;
-                mask.Edges = CreateEdges(puzzle, x, y);
-                mask.EdgeMasks = edgeMasks;
+                var edges = CreateEdges(puzzle, x, y);
+                // mask.EdgeMasks = edgeMasks;
+                
+                if (!CachedMasks.ContainsKey(edges))
+                {
+                    var topTex = edgeMasks[edges.Top == MaskScript.Edge.Flat ? 0 : edges.Top == MaskScript.Edge.In ? 1 : 2];
+                    var rightTex = edgeMasks[edges.Right == MaskScript.Edge.Flat ? 3 : edges.Right == MaskScript.Edge.In ? 4 : 5];
+                    var bottomTex = edgeMasks[edges.Bottom == MaskScript.Edge.Flat ? 6 : edges.Bottom == MaskScript.Edge.In ? 7 : 8];
+                    var leftTex = edgeMasks[edges.Left == MaskScript.Edge.Flat ? 9 : edges.Left == MaskScript.Edge.In ? 10 : 11];
+
+                    var newMask = new Texture2D(edgeMasks[0].width, edgeMasks[1].height);
+                    for (int i = 0; i < edgeMasks[0].width; ++i)
+                    {
+                        for (int j = 0; j < edgeMasks[0].height; ++j)
+                        {
+                            var col = edgeMasks[12].GetPixel(i,j) + topTex.GetPixel(i, j) + rightTex.GetPixel(i, j) + bottomTex.GetPixel(i, j) + leftTex.GetPixel(i, j);
+                            newMask.SetPixel(i, j, col);
+                        }
+                    }
+
+                    newMask.wrapMode = TextureWrapMode.Clamp;
+                    newMask.Apply();
+                    CachedMasks[edges] = newMask;
+                }
+
+                mask.Mask = CachedMasks[edges];
 
                 var tX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (2 / 8f);
                 var tY= (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (2 / 8f);
@@ -119,8 +147,8 @@ public class JigsawGenerator : MonoBehaviour
                 var pY = y - Ny / 2f + tY;
 
                 // Randomize location
-                pX = UnityEngine.Random.Range(-Nx / 2.5f, Nx / 2.5f);
-                pY = UnityEngine.Random.Range(-Ny / 2.5f, Ny / 2.5f);
+                //pX = UnityEngine.Random.Range(-Nx / 2.5f, Nx / 2.5f);
+                //pY = UnityEngine.Random.Range(-Ny / 2.5f, Ny / 2.5f);
 
                 container.transform.localPosition = new Vector3(pX, pY);
 
@@ -145,7 +173,7 @@ public class JigsawGenerator : MonoBehaviour
         }
 	}
     
-    MaskScript.Edge[] CreateEdges(JigsawPuzzle puzzle, int x, int y)
+    MaskScript.TEdges CreateEdges(JigsawPuzzle puzzle, int x, int y)
     {
         MaskScript.Edge top, right, bottom, left;
 
@@ -186,6 +214,6 @@ public class JigsawGenerator : MonoBehaviour
             bottom = piece.BottomD == Connection.In ? MaskScript.Edge.In : MaskScript.Edge.Out;
         }
         
-        return new[] { top, right, bottom, left };
+        return new MaskScript.TEdges(top, right, bottom, left);
     }
 }
