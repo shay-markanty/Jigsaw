@@ -36,7 +36,7 @@ public class JigsawGenerator : MonoBehaviour
         edgeMasks[11] = RotateTextureClockwise(edgeMasks[8]);
         edgeMasks[12] = EdgeTemplates[3];
 
-        Generate(5, 5, Image);
+        Generate(4, 4, Image);
     }
 
     private Texture2D FlipTextureVertically(Texture2D texture2D)
