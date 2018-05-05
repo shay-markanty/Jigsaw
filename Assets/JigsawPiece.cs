@@ -9,6 +9,61 @@ public class JigsawPiece : MonoBehaviour {
     Vector3 offset;
     private List<Collider> activeColliders = new List<Collider>();
     float dragDistance;
+    public TEdges Edges;
+
+    public void Instantiate(int x, int y, TEdges edges)
+    {
+        X = x;
+        Y = y;
+        Edges = edges;
+
+        gameObject.name = string.Format("JigsawPiece ({0},{1})", x, y);
+        GetComponent<BoxCollider>().size = new Vector3(6f / 8f, 6f / 8f, 5f);
+        var upCollider = transform.Find("UpCollider");
+        var bottomCollider = transform.Find("BottomCollider");
+        var rightCollider = transform.Find("RightCollider");
+        var leftCollider = transform.Find("LeftCollider");
+
+        switch (Edges.Top)
+        {
+            case Edge.In:
+                upCollider.localPosition = new Vector3(0f, 0.325f, 0f);
+                break;
+            case Edge.Flat:
+                GameObject.Destroy(upCollider.gameObject);
+                break;
+        }
+
+        switch (Edges.Bottom)
+        {
+            case Edge.In:
+                bottomCollider.localPosition = new Vector3(0f, -0.325f, 0f);
+                break;
+            case Edge.Flat:
+                GameObject.Destroy(bottomCollider.gameObject);
+                break;
+        }
+        
+        switch (Edges.Right)
+        {
+            case Edge.In:
+                rightCollider.localPosition = new Vector3(0.325f, 0f, 0f);
+                break;
+            case Edge.Flat:
+                GameObject.Destroy(rightCollider.gameObject);
+                break;
+        }
+
+        switch (Edges.Left)
+        {
+            case Edge.In:
+                leftCollider.localPosition = new Vector3(-0.325f, 0f, 0f);
+                break;
+            case Edge.Flat:
+                GameObject.Destroy(leftCollider.gameObject);
+                break;
+        }
+    }
 
     private void Update()
     {
@@ -17,9 +72,6 @@ public class JigsawPiece : MonoBehaviour {
 
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             transform.parent.position = ray.GetPoint(dragDistance) + offset - Vector3.forward * 4f;
-
-            //var position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //transform.parent.position = new Vector3(position.x - offset.x, position.y - offset.y, -4f);
         }
     }
 
@@ -36,11 +88,6 @@ public class JigsawPiece : MonoBehaviour {
             dragDistance = hit.distance;
             offset = transform.parent.position - hit.point;
         }
-        //    var position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //offset = GetComponent<Collider>().ClosestPoint(position);
-        //active = true;
-        //transform.parent.localPosition = new Vector3(transform.parent.localPosition.x, transform.parent.localPosition.y, -1f);
-        
     }
 
     private void OnMouseUp()
@@ -59,15 +106,13 @@ public class JigsawPiece : MonoBehaviour {
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag != "JigsawPiece") return;
-
-        //if (!active) return;
+        
         Debug.Log("collide with " + other.gameObject.name);
         activeColliders.Add(other);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        //if (!active) return;
         Debug.Log("no more collide with " + other.gameObject.name);
         activeColliders.Remove(other);
     }
