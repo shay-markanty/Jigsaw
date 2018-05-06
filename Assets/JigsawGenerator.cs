@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class JigsawGenerator : MonoBehaviour
@@ -90,6 +91,14 @@ public class JigsawGenerator : MonoBehaviour
         textureWithBorders.SetPixels(Mathf.RoundToInt(offsetX), Mathf.RoundToInt(offsetY), Image.width, Image.height, Image.GetPixels());
         JigsawPuzzle puzzle = JigsawPuzzle.Generate(Nx, Ny);
 
+        int n = Nx * Ny;
+        int[] array = new int[n];
+        for (int i = 0; i < n; i++)
+        {
+            array[i] = i;
+        }
+        Shuffle(array);
+
         for (int x = 0; x < Nx; x++)
         {
             for (int y = 0; y < Ny; y++)
@@ -118,24 +127,30 @@ public class JigsawGenerator : MonoBehaviour
                 CreateMaskTexture(edges);
                 mask.Mask = CachedMasks[edges];
 
-                var tX = (Nx % 2 == 0 ? 0.5f : 0.0f) - x * (2 / 8f);
-                var tY = (Ny % 2 == 0 ? 0.5f : 0.0f) - y * (2 / 8f);
+                var tX = (Nx % 2 == 0 ? 0.5f : 0.0f); // - x * (2 / 8f);
+                var tY = (Ny % 2 == 0 ? 0.5f : 0.0f); // - y * (2 / 8f);
 
                 var pX = x - Nx / 2f + tX;
                 var pY = y - Ny / 2f + tY;
 
                 if (SetRandomLocations)
                 {
+                    var r = array[x * Ny + y];
+
+                    pX = r % Ny - Nx / 2f + tX;
+                    pY = r / Ny - Ny / 2f + tY;
+
                     // Randomize location
-                    pX = UnityEngine.Random.Range(-Nx / 2.5f, Nx / 2.5f);
-                    pY = UnityEngine.Random.Range(-Ny / 2.5f, Ny / 2.5f);
+                    // pX =  UnityEngine.Random.Range(-Nx / 2.5f, Nx / 2.5f);
+                    // pY = UnityEngine.Random.Range(-Ny / 2.5f, Ny / 2.5f);
                 }
 
                 pieceContainer.transform.localPosition = new Vector3(pX, pY);
+                Camera.transform.position = new Vector3(tX, tY, -10f);
             }
         }
 
-        Camera.orthographicSize = Mathf.Max(Nx, Ny) / 2f;
+        Camera.orthographicSize = (Mathf.Max(Nx, Ny) / 2f) * 3f / 2f;
         // This will keep the aspect ratio of the object the same as the image's
         // the original object's (before the transform) is Nx / Ny
         // heuristically transform the smaller of the two edges (x or y) and keep the other at the same size
@@ -149,6 +164,23 @@ public class JigsawGenerator : MonoBehaviour
             transform.localScale = new Vector3(1f / ((float)Image.height / Image.width * ((float)Nx / Ny)), 1f, 1f);
         }
 	}
+
+    /// <summary>
+    /// Knuth shuffle
+    /// </summary>        
+    public void Shuffle(int[] array)
+    {
+        System.Random random = new System.Random();
+        int n = array.Count();
+        while (n > 1)
+        {
+            n--;
+            int i = random.Next(n + 1);
+            int temp = array[i];
+            array[i] = array[n];
+            array[n] = temp;
+        }
+    }
 
     private void CreateMaskTexture(TEdges edges)
     {

@@ -69,9 +69,9 @@ public class JigsawPiece : MonoBehaviour {
     {
         if (active)
         {
-
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            transform.parent.position = ray.GetPoint(dragDistance) + offset - Vector3.forward * 4f;
+            var position = ray.GetPoint(dragDistance) + offset;
+            transform.parent.position = new Vector3(position.x, position.y, -4f); // ray.GetPoint(dragDistance) + offset - Vector3.forward * 4f;
         }
     }
 
@@ -93,7 +93,7 @@ public class JigsawPiece : MonoBehaviour {
     private void OnMouseUp()
     {
         float z = 0f;
-        if (activeColliders.Any())
+        if (activeColliders.Any(c => c.transform.parent != transform.parent))
         {
             z = activeColliders.Min(c => c.transform.parent.position.z) - 0.01f;            
         }
